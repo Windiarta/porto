@@ -13,12 +13,12 @@ export default function Home() {
         <div className="max-w-6xl mx-auto flex items-center justify-between">
           <div className="font-extrabold tracking-tight text-xl">Windiarta</div>
           <nav className="hidden md:flex gap-6 text-sm">
-            <a href="#skills" className="hover:underline">Skills</a>
-            <a href="#tools" className="hover:underline">Tools</a>
-            <a href="#portfolio" className="hover:underline">Portfolio</a>
-            <a href="#experience" className="hover:underline">Experience</a>
-            <a href="#education" className="hover:underline">Education</a>
-            <a href="#contact" className="hover:underline">Contact</a>
+            <a href="#skills" className="hover:underline transition-transform duration-200 hover:-translate-y-0.5">Skills</a>
+            <a href="#tools" className="hover:underline transition-transform duration-200 hover:-translate-y-0.5">Tools</a>
+            <a href="#portfolio" className="hover:underline transition-transform duration-200 hover:-translate-y-0.5">Portfolio</a>
+            <a href="#experience" className="hover:underline transition-transform duration-200 hover:-translate-y-0.5">Experience</a>
+            <a href="#education" className="hover:underline transition-transform duration-200 hover:-translate-y-0.5">Education</a>
+            <a href="#contact" className="hover:underline transition-transform duration-200 hover:-translate-y-0.5">Contact</a>
           </nav>
         </div>
       </header>
@@ -33,7 +33,7 @@ export default function Home() {
 
         <section id="contact" className="space-y-4">
           <h2 className="text-2xl md:text-3xl font-bold">Contact</h2>
-          <p className="text-gray-600">Open to collaborations and opportunities. Reach me via email: <a className="underline" href="mailto:windiarta@example.com">windiarta@example.com</a></p>
+          <p className="text-gray-600">Open to collaborations and opportunities. Reach me via email: <a className="underline transition-colors duration-200 hover:text-black" href="mailto:windiarta.widjaja@gmail.com">windiarta.widjaja@gmail.com</a></p>
         </section>
       </main>
 
