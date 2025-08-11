@@ -28,8 +28,8 @@ export default function Hero() {
           transition={{ delay: 0.2, duration: 0.6 }}
           className="flex gap-3"
         >
-          <a href="#portfolio" className="px-5 py-3 rounded-xl bg-black text-white">View Work</a>
-          <a href="#contact" className="px-5 py-3 rounded-xl border border-black">Get in Touch</a>
+          <a href="#portfolio" className="px-5 py-3 rounded-xl bg-black text-white transition-transform duration-200 hover:scale-105 active:scale-95">View Work</a>
+          <a href="#contact" className="px-5 py-3 rounded-xl border border-black transition-transform duration-200 hover:scale-105 active:scale-95">Get in Touch</a>
         </motion.div>
       </div>
       <div className="relative h-[40vh] md:h-[60vh] rounded-3xl overflow-hidden border border-gray-200">

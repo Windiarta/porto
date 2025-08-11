@@ -7,13 +7,14 @@ type EducationItem = {
   startDate: string;
   endDate?: string;
   current?: boolean;
+  description?: Array<{ children?: Array<{ text?: string }> }>;
 };
 
 async function getData() {
   const client = getSanityClient();
   const education = hasSanity && client
     ? await client.fetch<EducationItem[]>(
-        `*[_type == "education"]|order(startDate desc){_id, degree, school, startDate, endDate, current}`
+        `*[_type == "education"]|order(coalesce(endDate, now()) desc){_id, degree, school, startDate, endDate, current, description}`
       )
     : ([] as EducationItem[]);
   return education;
@@ -37,6 +38,14 @@ export default async function Education() {
               </span>
             </div>
             <div className="text-gray-600 text-sm">{e.school}</div>
+            {e.description && e.description.length > 0 && (
+              <ul className="mt-3 list-disc list-inside text-sm text-gray-700 space-y-1">
+                {e.description.map((block, i) => {
+                  const text = block?.children?.map((c) => c.text).join("") || "";
+                  return text ? <li key={i}>{text}</li> : null;
+                })}
+              </ul>
+            )}
           </div>
         ))}
       </div>
