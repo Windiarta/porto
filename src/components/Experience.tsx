@@ -8,7 +8,13 @@ type Experience = {
   startDate: string;
   endDate?: string;
   current?: boolean;
-  description?: Array<{ children?: Array<{ text?: string }> }>;
+  description?: Array<{ 
+    children?: Array<{ 
+      text?: string;
+      marks?: string[];
+    }>;
+    style?: string;
+  }>;
   categories?: Array<{ _ref: string }>;
 };
 
@@ -17,7 +23,22 @@ async function getData() {
   const [experiences, categories] = await Promise.all([
     hasSanity && client
       ? client.fetch<Experience[]>(
-          `*[_type == "experience"]|order(coalesce(endDate, now()) desc){_id, role, company, startDate, endDate, current, description, categories}`
+          `*[_type == "experience"]|order(coalesce(endDate, now()) desc){
+            _id, 
+            role, 
+            company, 
+            startDate, 
+            endDate, 
+            current, 
+            description[]{
+              children[]{
+                text,
+                marks
+              },
+              style
+            }, 
+            categories
+          }`
         )
       : Promise.resolve([] as Experience[]),
     hasSanity && client
