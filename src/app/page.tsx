@@ -35,7 +35,7 @@ export default function Home() {
 
         <section id="contact" className="space-y-4">
           <h2 className="text-2xl md:text-3xl font-bold">Contact</h2>
-          <p className="text-gray-600">Open to collaborations and opportunities. Reach me via email: <a className="underline transition-colors duration-200 hover:text-black" href="mailto:windiarta.widjaja@gmail.com">windiarta.widjaja@gmail.com</a></p>
+          <p className="text-gray-600">Open to collaborations and opportunities. Reach me via email: <a className="underline transition-colors duration-200 hover:text-black" href="mailto:windiarta.widjaja@gmail.com" target="_blank">windiarta.widjaja@gmail.com</a> or <a className="underline transition-colors duration-200 hover:text-black" href="https://www.linkedin.com/in/windiarta/" target="_blank">LinkedIn</a> or <a className="underline transition-colors duration-200 hover:text-black" href="https://github.com/windiarta" target="_blank">GitHub</a></p>
         </section>
       </main>
 
