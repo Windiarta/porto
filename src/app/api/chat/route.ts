@@ -2,6 +2,47 @@ import { NextRequest } from "next/server";
 import { openRouterChat } from "@/lib/openrouter";
 import { getSanityClient, hasSanity } from "@/sanity/client";
 
+// Portfolio data types
+interface Experience {
+  role: string;
+  company: string;
+  startDate: string;
+  endDate?: string;
+  current?: boolean;
+  description?: Array<{
+    children?: Array<{
+      text?: string;
+      marks?: string[];
+    }>;
+  }>;
+}
+
+interface Project {
+  title: string;
+  description: string;
+  url?: string;
+  categories?: Array<{ title: string }>;
+}
+
+interface Education {
+  degree: string;
+  institution: string;
+  startDate: string;
+  endDate: string;
+  description?: string;
+}
+
+interface Skill {
+  name: string;
+  level?: string;
+  category?: { title: string };
+}
+
+interface Tool {
+  name: string;
+  category?: { title: string };
+}
+
 // Function to fetch portfolio data from Sanity
 async function getPortfolioData() {
   if (!hasSanity) {
@@ -88,57 +129,62 @@ async function getPortfolioData() {
 }
 
 // Function to format experience data for the prompt
-function formatExperience(experience: any) {
+function formatExperience(experience: Experience) {
   const dateRange = experience.current 
     ? `${new Date(experience.startDate).getFullYear()} - Present`
-    : `${new Date(experience.startDate).getFullYear()} - ${new Date(experience.endDate).getFullYear()}`;
+    : `${new Date(experience.startDate).getFullYear()} - ${new Date(experience.endDate ?? '').getFullYear()}`;
   
   const description = experience.description
-    ?.map((block: any) => 
-      block.children?.map((child: any) => child.text).join("")
+    ?.map((block) => 
+      block.children?.map((child) => child.text).join("")
     ).join(" ") || "";
   
   return `• ${experience.role} at ${experience.company} (${dateRange}): ${description}`;
 }
 
 // Function to format project data for the prompt
-function formatProject(project: any) {
-  const categories = project.categories?.map((cat: any) => cat.title).join(", ") || "";
+function formatProject(project: Project) {
+  const categories = project.categories?.map((cat) => cat.title).join(", ") || "";
   return `• ${project.title}${categories ? ` (${categories})` : ""}: ${project.description}${project.url ? ` - ${project.url}` : ""}`;
 }
 
 // Function to format education data for the prompt
-function formatEducation(education: any) {
-  const dateRange = `${new Date(education.startDate).getFullYear()} - ${new Date(education.endDate).getFullYear()}`;
+function formatEducation(education: Education) {
+  const start = education.startDate ? new Date(education.startDate).getFullYear() : 'Unknown';
+  let end: string | number = 'Unknown';
+  if (typeof education.endDate === 'string') {
+    end = new Date(education.endDate).getFullYear();
+  }
+  const dateRange = `${start} - ${end}`;
   return `• ${education.degree} from ${education.institution} (${dateRange})`;
 }
 
 // Function to format skills data for the prompt
-function formatSkills(skills: any[]) {
-  const skillGroups = skills.reduce((acc: any, skill: any) => {
+function formatSkills(skills: Skill[]) {
+  const skillGroups = skills.reduce((acc: Record<string, string[]>, skill) => {
     const category = skill.category?.title || "Other";
     if (!acc[category]) acc[category] = [];
     acc[category].push(`${skill.name}${skill.level ? ` (${skill.level})` : ""}`);
     return acc;
-  }, {});
+  }, {} as Record<string, string[]>);
   
   return Object.entries(skillGroups)
-    .map(([category, skillList]: [string, any]) => 
+    .map(([category, skillList]) => 
       `${category}: ${skillList.join(", ")}`
     ).join("; ");
 }
 
 // Function to format tools data for the prompt
-function formatTools(tools: any[]) {
-  const toolGroups = tools.reduce((acc: any, tool: any) => {
+function formatTools(tools: Tool[]) {
+  const toolGroups = tools.reduce((acc: Record<string, string[]>, tool) => {
     const category = tool.category?.title || "Other";
     if (!acc[category]) acc[category] = [];
     acc[category].push(tool.name);
     return acc;
-  }, {});
+  }, {} as Record<string, string[]>);
   
   return Object.entries(toolGroups)
-    .map(([category, toolList]: [string, any]) => 
+    .map(([category, toolList]) => 
       `${category}: ${toolList.join(", ")}`
     ).join("; ");
 }

@@ -24,7 +24,7 @@ function renderText(children: Array<{ text?: string; marks?: string[] }>) {
   return children.map((child, index) => {
     if (!child.text) return null;
     
-    let text = child.text;
+    const text = child.text;
     let className = "";
     
     // Apply formatting based on marks
