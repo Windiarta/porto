@@ -10,8 +10,44 @@ type Experience = {
   endDate?: string;
   current?: boolean;
   categories?: Array<{ _ref: string }>;
-  description?: Array<{ children?: Array<{ text?: string }> }>;
+  description?: Array<{ 
+    children?: Array<{ 
+      text?: string;
+      marks?: string[];
+    }>;
+    style?: string;
+  }>;
 };
+
+// Helper function to render formatted text
+function renderText(children: Array<{ text?: string; marks?: string[] }>) {
+  return children.map((child, index) => {
+    if (!child.text) return null;
+    
+    let text = child.text;
+    let className = "";
+    
+    // Apply formatting based on marks
+    if (child.marks?.includes('strong')) {
+      className += " font-semibold";
+    }
+    if (child.marks?.includes('em')) {
+      className += " italic";
+    }
+    if (child.marks?.includes('underline')) {
+      className += " underline";
+    }
+    if (child.marks?.includes('code')) {
+      className += " bg-gray-100 px-1 rounded font-mono text-sm";
+    }
+    
+    return (
+      <span key={index} className={className.trim()}>
+        {text}
+      </span>
+    );
+  });
+}
 
 export default function ExperienceFilters({
   categories,
@@ -67,8 +103,13 @@ export default function ExperienceFilters({
             {e.description && e.description.length > 0 && (
               <ul className="mt-3 list-disc list-inside text-sm text-gray-700 space-y-1">
                 {e.description.map((block, i) => {
-                  const text = block?.children?.map((c) => c.text).join("") || "";
-                  return text ? <li key={i}>{text}</li> : null;
+                  if (!block?.children || block.children.length === 0) return null;
+                  
+                  return (
+                    <li key={i}>
+                      {renderText(block.children)}
+                    </li>
+                  );
                 })}
               </ul>
             )}

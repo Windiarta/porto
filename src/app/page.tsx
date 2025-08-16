@@ -6,6 +6,8 @@ import Skills from "@/components/Skills";
 import Education from "@/components/Education";
 import Tools from "@/components/Tools";
 
+export const revalidate = 0; // Disable caching for development
+
 export default function Home() {
   return (
     <div className="font-sans min-h-screen bg-white text-black">

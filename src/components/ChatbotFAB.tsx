@@ -1,8 +1,68 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
 
 type ChatMessage = { role: "user" | "assistant" | "system"; content: string };
+
+// Function to clean up malformed table content
+function cleanTableContent(content: string): string {
+  // Replace <br> tags with line breaks
+  let cleaned = content.replace(/<br\s*\/?>/gi, '\n');
+  
+  // Fix common table formatting issues
+  cleaned = cleaned.replace(/\|\s*\n\s*\|/g, '|\n|');
+  
+  // Handle the specific case from the user's example
+  // Look for patterns like "| Category | Tools / Technologies | Typical Use |"
+  const tablePattern = /\|.*\|.*\|.*\|/;
+  if (tablePattern.test(cleaned)) {
+    const lines = cleaned.split('\n');
+    const tableStartIndex = lines.findIndex(line => tablePattern.test(line));
+    
+    if (tableStartIndex !== -1) {
+      // Find where the table ends
+      let tableEndIndex = tableStartIndex;
+      for (let i = tableStartIndex; i < lines.length; i++) {
+        if (lines[i].trim().includes('|')) {
+          tableEndIndex = i;
+        } else if (lines[i].trim() === '') {
+          break;
+        }
+      }
+      
+      // Extract table lines
+      const tableLines = lines.slice(tableStartIndex, tableEndIndex + 1);
+      
+      // Check if we need to add a header separator
+      const hasHeaderSeparator = tableLines.some(line => 
+        line.trim().match(/^\|[\s\-:]+\|[\s\-:]+\|[\s\-:]+\|$/)
+      );
+      
+      if (!hasHeaderSeparator && tableLines.length >= 2) {
+        // Count columns from the first row
+        const firstRow = tableLines[0];
+        const columnCount = (firstRow.match(/\|/g) || []).length - 1;
+        const separator = '|' + '---|'.repeat(columnCount);
+        
+        // Reconstruct the content with proper table formatting
+        const beforeTable = lines.slice(0, tableStartIndex);
+        const afterTable = lines.slice(tableEndIndex + 1);
+        
+        const newTableLines = [
+          tableLines[0],
+          separator,
+          ...tableLines.slice(1)
+        ];
+        
+        return [...beforeTable, ...newTableLines, ...afterTable].join('\n');
+      }
+    }
+  }
+  
+  return cleaned;
+}
 
 export default function ChatbotFAB() {
   const [open, setOpen] = useState(false);
@@ -78,13 +138,77 @@ export default function ChatbotFAB() {
                 <div key={idx} className={m.role === "user" ? "text-right" : "text-left"}>
                   <div
                     className={
-                      "inline-block px-3 py-2 rounded-xl " +
+                      "inline-block px-3 py-2 rounded-xl max-w-[85%] " +
                       (m.role === "user"
                         ? "bg-black text-white"
                         : "bg-gray-100 text-gray-900")
                     }
                   >
-                    {m.content}
+                    {m.role === "user" ? (
+                      <span className="whitespace-pre-wrap">{m.content}</span>
+                    ) : (
+                      <div className="prose prose-sm max-w-none [&>*:first-child]:mt-0 [&>*:last-child]:mb-0">
+                        <ReactMarkdown
+                          remarkPlugins={[remarkGfm]}
+                          components={{
+                            // Custom styling for different markdown elements
+                            p: ({ children }) => <span className="block mb-1 last:mb-0">{children}</span>,
+                            strong: ({ children }) => <strong className="font-semibold">{children}</strong>,
+                            em: ({ children }) => <em className="italic">{children}</em>,
+                            code: ({ children, className }) => {
+                              const isInline = !className;
+                              return isInline ? (
+                                <code className="bg-gray-200 px-1 py-0.5 rounded text-sm font-mono">{children}</code>
+                              ) : (
+                                <pre className="bg-gray-100 p-2 rounded text-xs overflow-x-auto">
+                                  <code>{children}</code>
+                                </pre>
+                              );
+                            },
+                            a: ({ children, href }) => (
+                              <a 
+                                href={href} 
+                                target="_blank" 
+                                rel="noopener noreferrer"
+                                className="text-blue-600 hover:underline"
+                              >
+                                {children}
+                              </a>
+                            ),
+                            ul: ({ children }) => <ul className="list-disc list-inside space-y-1 my-1">{children}</ul>,
+                            ol: ({ children }) => <ol className="list-decimal list-inside space-y-1 my-1">{children}</ol>,
+                            li: ({ children }) => <li className="text-sm">{children}</li>,
+                            blockquote: ({ children }) => (
+                              <blockquote className="border-l-4 border-gray-300 pl-2 italic text-gray-600 my-1">
+                                {children}
+                              </blockquote>
+                            ),
+                            table: ({ children }) => (
+                              <div className="overflow-x-auto my-2">
+                                <table className="min-w-full border border-gray-300 text-xs">
+                                  {children}
+                                </table>
+                              </div>
+                            ),
+                            thead: ({ children }) => <thead className="bg-gray-50">{children}</thead>,
+                            tbody: ({ children }) => <tbody>{children}</tbody>,
+                            tr: ({ children }) => <tr className="border-b border-gray-200">{children}</tr>,
+                            th: ({ children }) => (
+                              <th className="px-2 py-1 text-left font-semibold border-r border-gray-300">
+                                {children}
+                              </th>
+                            ),
+                            td: ({ children }) => (
+                              <td className="px-2 py-1 border-r border-gray-300">
+                                {children}
+                              </td>
+                            ),
+                          }}
+                        >
+                          {cleanTableContent(m.content)}
+                        </ReactMarkdown>
+                      </div>
+                    )}
                   </div>
                 </div>
               ))}
