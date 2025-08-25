@@ -1,9 +1,6 @@
 "use client";
 import { useMemo, useState } from "react";
 
-// Add for dialog/modal
-import { Fragment } from "react";
-
 type Category = { _id: string; title: string; slug?: { current?: string } };
 type Project = {
   _id: string;
