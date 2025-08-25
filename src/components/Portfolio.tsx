@@ -11,6 +11,8 @@ type Project = {
   url?: string;
   cover?: { asset?: { _ref?: string } };
   categories?: Array<{ _ref: string }>;
+  tech?: string[];
+  slug?: { current?: string };
 };
 
 function urlFor(source: { asset?: { _ref?: string } } | undefined): string | undefined {
@@ -23,7 +25,7 @@ async function getData() {
   const [projects, categories] = await Promise.all([
     hasSanity && getSanityClient()
       ? getSanityClient()!.fetch<Project[]>(
-          `*[_type == "project"]{_id, title, description, url, cover, categories}`
+          `*[_type == "project"]{_id, title, description, url, cover, categories, tech, slug}`
         )
       : Promise.resolve([] as Project[]),
     hasSanity && getSanityClient()
