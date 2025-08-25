@@ -1,6 +1,7 @@
 import { getSanityClient, hasSanity } from "@/sanity/client";
 import imageUrlBuilder from "@sanity/image-url";
 import { dataset, projectId } from "@/sanity/client";
+import Link from "next/link";
 
 type Project = {
   _id: string;
@@ -19,7 +20,8 @@ function urlFor(source: { asset?: { _ref?: string } } | undefined): string | und
   return builder.image(source as { asset?: { _ref?: string } }).width(1200).height(800).fit("max").url();
 }
 
-export default async function ProjectPage({ params }: { params: { slug: string } }) {
+export default async function ProjectPage(props: unknown) {
+  const { params } = (props as { params: { slug: string } }) ?? { params: { slug: "" } };
   let project: Project | null = null;
   if (hasSanity && getSanityClient()) {
     project = await getSanityClient()!.fetch<Project | null>(
@@ -40,7 +42,7 @@ export default async function ProjectPage({ params }: { params: { slug: string }
 
   return (
     <div className="max-w-5xl mx-auto py-10 px-6 space-y-6">
-      <a href="/" className="text-sm underline">← Back</a>
+      <Link href="/" className="text-sm underline">← Back</Link>
       <h1 className="text-3xl md:text-4xl font-extrabold">{project.title}</h1>
       {coverUrl && (
         // eslint-disable-next-line @next/next/no-img-element
