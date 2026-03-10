@@ -1,4 +1,5 @@
 import { getSanityClient, hasSanity } from "@/sanity/client";
+import EducationCards from "./EducationCards.client";
 
 type EducationItem = {
   _id: string;
@@ -14,8 +15,8 @@ async function getData() {
   const client = getSanityClient();
   const education = hasSanity && client
     ? await client.fetch<EducationItem[]>(
-        `*[_type == "education"]|order(coalesce(endDate, now()) desc){_id, degree, school, startDate, endDate, current, description}`
-      )
+      `*[_type == "education"]|order(coalesce(endDate, now()) desc){_id, degree, school, startDate, endDate, current, description}`
+    )
     : ([] as EducationItem[]);
   return education;
 }
@@ -23,32 +24,17 @@ async function getData() {
 export default async function Education() {
   const items = await getData();
   return (
-    <section id="education" className="space-y-6">
-      <h2 className="text-2xl md:text-3xl font-bold">Education</h2>
+    <section id="education" className="space-y-12">
+      <div className="flex flex-col gap-2">
+        <h2 className="text-4xl md:text-5xl font-black tracking-tight uppercase italic">Education</h2>
+        <p className="text-foreground/60 max-w-xl text-lg">My academic foundation and continuous learning journey.</p>
+      </div>
+
       {!hasSanity && (
         <div className="text-sm text-gray-500">Connect Sanity to populate education.</div>
       )}
-      <div className="space-y-4">
-        {items.map((e) => (
-          <div key={e._id} className="p-4 border rounded-2xl">
-            <div className="flex items-center justify-between">
-              <h3 className="font-semibold">{e.degree}</h3>
-              <span className="text-sm text-gray-500">
-                {formatDate(e.startDate)} - {e.current ? "Present" : e.endDate ? formatDate(e.endDate) : ""}
-              </span>
-            </div>
-            <div className="text-gray-600 text-sm">{e.school}</div>
-            {e.description && e.description.length > 0 && (
-              <ul className="mt-3 list-disc list-inside text-sm text-gray-700 space-y-1">
-                {e.description.map((block, i) => {
-                  const text = block?.children?.map((c) => c.text).join("") || "";
-                  return text ? <li key={i}>{text}</li> : null;
-                })}
-              </ul>
-            )}
-          </div>
-        ))}
-      </div>
+
+      <EducationCards items={items} />
     </section>
   );
 }
